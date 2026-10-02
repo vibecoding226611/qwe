@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Форма &amp; Facoltà</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#17181A;
+    --bg-elev:#1F2023;
+    --bg-elev-2:#26272B;
+    --border:#333438;
+    --text:#EDEDEF;
+    --text-dim:#A6A7AB;
+    --zal:#FF5A2A;
+    --zal-dim:#4a2416;
+    --it:#C9A15A;
+    --it-dim:#4a3f24;
+    --ok:#4CAF7D;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    min-width:360px;
+  }
+  a{color:inherit;}
+
+  /* ---------- Layout shell ---------- */
+  .app{max-width:920px;margin:0 auto;padding:16px 16px 64px;}
+
+  .mode-switch{
+    display:flex;
+    gap:8px;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:6px;
+    margin-bottom:20px;
+    position:sticky;
+    top:8px;
+    z-index:20;
+  }
+  .mode-btn{
+    flex:1;
+    padding:12px 10px;
+    border:none;
+    border-radius:10px;
+    background:transparent;
+    color:var(--text-dim);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  .mode-btn.active[data-mode="zal"]{background:var(--zal);color:#1a1a1a;}
+  .mode-btn.active[data-mode="italy"]{background:var(--it);color:#1a1a1a;}
+  .mode-btn:not(.active):hover{color:var(--text);}
+  .mode-btn:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
+
+  .mode-panel{display:none;}
+  .mode-panel.active{display:block;}
+
+  .hero{margin:8px 0 24px;}
+  .hero h1{
+    font-family:'Anton',sans-serif;
+    font-weight:400;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    font-size:clamp(28px,7vw,42px);
+    margin:0 0 6px;
+    color:var(--zal);
+  }
+  .mode-panel[data-mode="italy"] .hero h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    text-transform:none;
+    color:var(--it);
+  }
+  .hero p{color:var(--text-dim);margin:0;font-size:14.5px;}
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding-bottom:6px;
+    margin-bottom:20px;
+    border-bottom:1px solid var(--border);
+    -webkit-overflow-scrolling:touch;
+  }
+  .tabs::-webkit-scrollbar{height:4px;}
+  .tab-btn{
+    flex:0 0 auto;
+    background:none;
+    border:none;
+    color:var(--text-dim);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    padding:10px 12px;
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    white-space:nowrap;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .tab-btn:hover{color:var(--text);}
+  .mode-panel[data-mode="zal"] .tab-btn.active{color:var(--zal);border-color:var(--zal);}
+  .mode-panel[data-mode="italy"] .tab-btn.active{color:var(--it);border-color:var(--it);}
+  .tab-btn:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
+
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;animation:fade .15s ease;}
+  @keyframes fade{from{opacity:0;}to{opacity:1;}}
+
+  h2.section-title{
+    font-family:'Anton',sans-serif;
+    font-weight:400;
+    text-transform:uppercase;
+    font-size:20px;
+    letter-spacing:.3px;
+    color:var(--zal);
+    margin:28px 0 12px;
+  }
+  .mode-panel[data-mode="italy"] h2.section-title{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    text-transform:none;
+    color:var(--it);
+  }
+  h2.section-title:first-child{margin-top:0;}
+
+  .card{
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:14px;
+  }
+
+  /* ---------- Principles / lists ---------- */
+  .principle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  @media (max-width:640px){.principle-grid{grid-template-columns:1fr;}}
+  .principle{
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-left:3px solid var(--zal);
+    border-radius:10px;
+    padding:14px;
+  }
+  .mode-panel[data-mode="italy"] .principle{border-left-color:var(--it);}
+  .principle .num{
+    font-family:'Anton',sans-serif;
+    color:var(--zal);
+    font-size:22px;
+    display:block;
+    margin-bottom:4px;
+  }
+  .mode-panel[data-mode="italy"] .principle .num{font-family:'Fraunces',serif;color:var(--it);}
+  .principle p{margin:4px 0 0;color:var(--text-dim);font-size:13.5px;}
+
+  /* ---------- Blocks (year plan / roadmap) ---------- */
+  .block-list{display:flex;flex-direction:column;gap:10px;}
+  .block{
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+  }
+  .block .badge{
+    flex:0 0 auto;
+    width:38px;height:38px;
+    border-radius:50%;
+    background:var(--zal-dim);
+    color:var(--zal);
+    font-family:'Anton',sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;
+  }
+  .mode-panel[data-mode="italy"] .block .badge{background:var(--it-dim);color:var(--it);font-family:'Fraunces',serif;font-weight:700;}
+  .block .content{flex:1;min-width:0;}
+  .block h3{margin:0 0 4px;font-size:16px;}
+  .block .meta{color:var(--text-dim);font-size:12.5px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+  .block p{margin:0;font-size:14px;color:var(--text-dim);}
+  .block ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;color:var(--text-dim);}
+  .block ul li{margin-bottom:3px;}
+  .deload-note{
+    font-size:12.5px;
+    color:var(--zal);
+    background:var(--zal-dim);
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:8px;
+    margin-top:20px;
+  }
+
+  /* roadmap step with checkbox */
+  .step{
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px 16px;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    margin-bottom:10px;
+    transition:border-color .15s ease, opacity .15s ease;
+  }
+  .step.done{border-color:var(--ok);opacity:.72;}
+  .step input[type="checkbox"]{
+    width:20px;height:20px;flex:0 0 auto;margin-top:2px;accent-color:var(--it);cursor:pointer;
+  }
+  .step .content{flex:1;min-width:0;}
+  .step .meta{color:var(--it);font-size:12px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+  .step h3{margin:0 0 4px;font-size:15.5px;}
+  .step.done h3{text-decoration:line-through;}
+  .step p{margin:0;font-size:13.5px;color:var(--text-dim);}
+  .step ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--text-dim);}
+
+  /* ---------- Progress bar ---------- */
+  .progress-wrap{margin-bottom:20px;}
+  .progress-label{display:flex;justify-content:space-between;font-size:13px;color:var(--text-dim);margin-bottom:6px;}
+  .progress-track{
+    width:100%;height:10px;background:var(--bg-elev-2);border-radius:6px;overflow:hidden;border:1px solid var(--border);
+  }
+  .progress-fill{
+    height:100%;background:var(--zal);border-radius:6px;
+    width:0%;transition:width .25s ease;
+  }
+  .mode-panel[data-mode="italy"] .progress-fill{background:var(--it);}
+
+  /* ---------- Training day table ---------- */
+  .day-tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .day-tab{
+    flex:1;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    font-weight:700;
+    border-radius:10px;
+    padding:10px;
+    cursor:pointer;
+    font-size:14px;
+  }
+  .day-tab.active{border-color:var(--zal);color:var(--zal);background:var(--zal-dim);}
+  .day-panel{display:none;}
+  .day-panel.active{display:block;}
+
+  .day-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .day-header h3{margin:0;font-size:17px;}
+  .day-header .day-sub{color:var(--text-dim);font-size:13px;}
+
+  .done-toggle{
+    display:flex;align-items:center;gap:8px;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:8px 12px;
+    cursor:pointer;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--text-dim);
+    user-select:none;
+  }
+  .done-toggle input{width:18px;height:18px;accent-color:var(--zal);cursor:pointer;}
+  .done-toggle.done{border-color:var(--ok);color:var(--ok);}
+
+  table.ex-table{
+    width:100%;
+    border-collapse:collapse;
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    font-size:14px;
+  }
+  table.ex-table th{
+    text-align:left;
+    background:var(--bg-elev-2);
+    color:var(--text-dim);
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    padding:10px 12px;
+  }
+  table.ex-table td{padding:10px 12px;border-top:1px solid var(--border);}
+  table.ex-table tr:hover td{background:var(--bg-elev-2);}
+
+  @media (max-width:560px){
+    table.ex-table thead{display:none;}
+    table.ex-table, table.ex-table tbody, table.ex-table tr, table.ex-table td{display:block;width:100%;}
+    table.ex-table tr{border-top:1px solid var(--border);padding:10px 12px;}
+    table.ex-table td{border:none;padding:2px 0;}
+    table.ex-table td::before{
+      content:attr(data-label);
+      display:block;
+      font-size:11px;
+      text-transform:uppercase;
+      color:var(--text-dim);
+      letter-spacing:.3px;
+      margin-bottom:1px;
+    }
+    table.ex-table td:first-child{font-weight:700;font-size:15px;margin-bottom:4px;}
+  }
+
+  /* ---------- Exercise library ---------- */
+  .muscle-tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .muscle-tab{
+    flex:1;background:var(--bg-elev);border:1px solid var(--border);color:var(--text-dim);
+    font-weight:700;border-radius:10px;padding:10px;cursor:pointer;font-size:14px;
+  }
+  .muscle-tab.active{border-color:var(--zal);color:var(--zal);background:var(--zal-dim);}
+  .muscle-panel{display:none;}
+  .muscle-panel.active{display:block;}
+  .exercise{
+    background:var(--bg-elev);border:1px solid var(--border);border-radius:12px;
+    padding:14px 16px;margin-bottom:10px;
+  }
+  .exercise h4{margin:0 0 6px;font-size:15.5px;}
+  .exercise .scheme{
+    display:inline-block;background:var(--zal-dim);color:var(--zal);font-size:12px;font-weight:700;
+    padding:3px 9px;border-radius:6px;margin-bottom:8px;
+  }
+  .exercise .row{display:flex;gap:8px;font-size:13.5px;margin-top:6px;}
+  .exercise .row .tag{flex:0 0 auto;color:var(--text-dim);font-weight:600;min-width:78px;}
+  .exercise .row p{margin:0;color:var(--text-dim);}
+
+  /* ---------- University cards ---------- */
+  .uni-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  @media (max-width:640px){.uni-grid{grid-template-columns:1fr;}}
+  .uni-card{
+    background:var(--bg-elev);border:1px solid var(--border);border-radius:14px;padding:16px;
+  }
+  .uni-card .city{color:var(--it);font-size:12px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;font-weight:700;}
+  .uni-card h3{margin:0 0 6px;font-size:16px;font-family:'Fraunces',serif;font-weight:600;}
+  .uni-card p{margin:0;font-size:13.5px;color:var(--text-dim);}
+
+  /* ---------- Document categories ---------- */
+  .doc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  @media (max-width:640px){.doc-grid{grid-template-columns:1fr;}}
+  .doc-cat{background:var(--bg-elev);border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .doc-cat h3{margin:0 0 8px;font-size:14.5px;color:var(--it);text-transform:uppercase;letter-spacing:.3px;}
+  .doc-cat ul{margin:0;padding-left:18px;font-size:14px;color:var(--text-dim);}
+  .doc-cat ul li{margin-bottom:5px;}
+
+  .info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  @media (max-width:640px){.info-grid{grid-template-columns:1fr;}}
+  .info-card{background:var(--bg-elev);border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .info-card h3{margin:0 0 8px;font-size:15px;}
+  .mode-panel[data-mode="zal"] .info-card h3{color:var(--zal);}
+  .mode-panel[data-mode="italy"] .info-card h3{color:var(--it);}
+  .info-card p{margin:0 0 6px;font-size:13.5px;color:var(--text-dim);}
+  .info-card p:last-child{margin-bottom:0;}
+  .info-card strong{color:var(--text);}
+
+  footer{margin-top:32px;color:var(--text-dim);font-size:12px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="mode-switch" role="tablist" aria-label="Режим">
+    <button class="mode-btn active" data-mode="zal" role="tab" aria-selected="true">Зал</button>
+    <button class="mode-btn" data-mode="italy" role="tab" aria-selected="false">Италия</button>
+  </div>
+
+  <!-- ======================= ЗАЛ ======================= -->
+  <section class="mode-panel active" data-mode="zal">
+    <div class="hero">
+      <h1>Форма</h1>
+      <p>Full-body, 3 раза в неделю. Год разбит на 4 блока по 12 недель.</p>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Разделы Зала">
+      <button class="tab-btn active" data-tab="overview">Обзор</button>
+      <button class="tab-btn" data-tab="year">Годовой план</button>
+      <button class="tab-btn" data-tab="days">Тренировочные дни</button>
+      <button class="tab-btn" data-tab="exercises">Упражнения</button>
+      <button class="tab-btn" data-tab="nutrition">Питание и отдых</button>
+    </div>
+
+    <!-- Обзор -->
+    <div class="tab-panel active" data-tab="overview">
+      <h2 class="section-title">Формат</h2>
+      <div class="card">
+        <p style="margin:0;color:var(--text-dim);font-size:14.5px;">
+          Full-body сплит на три дня в неделю — дни <strong style="color:var(--text)">A / B / C</strong> с отдыхом между тренировками.
+          Каждый день прорабатывает всё тело с акцентом на одну крупную группу мышц. Между одинаковыми днями — минимум 48 часов отдыха.
+        </p>
+      </div>
+
+      <h2 class="section-title">3 принципа на год</h2>
+      <div class="principle-grid">
+        <div class="principle">
+          <span class="num">01</span>
+          <strong>Прогрессивная перегрузка</strong>
+          <p>Постепенно увеличивай вес, повторения или подходы — тело растёт только в ответ на растущую нагрузку.</p>
+        </div>
+        <div class="principle">
+          <span class="num">02</span>
+          <strong>Техника важнее веса</strong>
+          <p>Сначала закрепи правильную траекторию движения, потом добавляй нагрузку. Плохая техника — путь к травме.</p>
+        </div>
+        <div class="principle">
+          <span class="num">03</span>
+          <strong>Восстановление обязательно</strong>
+          <p>Сон, белок и дни отдыха — часть тренировки, а не опция. Без них рост останавливается.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Годовой план -->
+    <div class="tab-panel" data-tab="year">
+      <h2 class="section-title">4 блока по 12 недель</h2>
+      <div class="block-list">
+        <div class="block">
+          <div class="badge">1</div>
+          <div class="content">
+            <div class="meta">Недели 1–12 · Фундамент</div>
+            <h3>Освоение техники</h3>
+            <p>3 подхода × 12–15 повторений, лёгкие-средние веса. Цель — построить правильный двигательный паттерн и подготовить связки/суставы к дальнейшей нагрузке.</p>
+          </div>
+        </div>
+        <div class="block">
+          <div class="badge">2</div>
+          <div class="content">
+            <div class="meta">Недели 13–24 · Объём</div>
+            <h3>Гипертрофия</h3>
+            <p>4 подхода × 8–12 повторений. Цель — рост мышечной массы за счёт увеличенного тренировочного объёма.</p>
+          </div>
+        </div>
+        <div class="block">
+          <div class="badge">3</div>
+          <div class="content">
+            <div class="meta">Недели 25–36 · Сила</div>
+            <h3>Силовые показатели</h3>
+            <p>5 подходов × 4–6 повторений, тяжёлые веса, больше отдыха между подходами. Цель — рост рабочих весов в базовых движениях.</p>
+          </div>
+        </div>
+        <div class="block">
+          <div class="badge">4</div>
+          <div class="content">
+            <div class="meta">Недели 37–48 · Консолидация</div>
+            <h3>Закрепление результата</h3>
+            <p>3 подхода × 8–10 повторений в смешанном режиме — сочетание объёма и силы. Цель — закрепить прогресс года перед новым циклом.</p>
+          </div>
+        </div>
+      </div>
+      <span class="deload-note">↺ Разгрузочная неделя в конце каждого блока: объём и вес снижаются на 40–50% для восстановления</span>
+    </div>
+
+    <!-- Тренировочные дни -->
+    <div class="tab-panel" data-tab="days">
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Прогресс недели</span>
+          <span id="week-progress-text">0 / 3</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="week-progress-fill"></div></div>
+      </div>
+
+      <div class="day-tabs">
+        <button class="day-tab active" data-day="A">День A</button>
+        <button class="day-tab" data-day="B">День B</button>
+        <button class="day-tab" data-day="C">День C</button>
+      </div>
+
+      <div class="day-panel active" data-day="A">
+        <div class="day-header">
+          <div>
+            <h3>День A — Спина / Тяга</h3>
+            <div class="day-sub">Акцент на мышцы спины и заднюю цепь</div>
+          </div>
+          <label class="done-toggle" id="toggle-A">
+            <input type="checkbox" id="check-A"> Тренировка выполнена
+          </label>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>Упражнение</th><th>Подходы × повторения</th><th>Отдых</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Упражнение">Становая тяга</td><td data-label="Подходы">4 × 6</td><td data-label="Отдых">2–3 мин</td></tr>
+            <tr><td data-label="Упражнение">Подтягивания / тяга верхнего блока</td><td data-label="Подходы">4 × 8–10</td><td data-label="Отдых">90 сек</td></tr>
+            <tr><td data-label="Упражнение">Тяга штанги в наклоне</td><td data-label="Подходы">3 × 10</td><td data-label="Отдых">90 сек</td></tr>
+            <tr><td data-label="Упражнение">Тяга гантели одной рукой</td><td data-label="Подходы">3 × 12 на сторону</td><td data-label="Отдых">60 сек</td></tr>
+            <tr><td data-label="Упражнение">Гиперэкстензия</td><td data-label="Подходы">3 × 15</td><td data-label="Отдых">45 сек</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="day-panel" data-day="B">
+        <div class="day-header">
+          <div>
+            <h3>День B — Ноги</h3>
+            <div class="day-sub">Квадрицепс, бицепс бедра, ягодицы, икры</div>
+          </div>
+          <label class="done-toggle" id="toggle-B">
+            <input type="checkbox" id="check-B"> Тренировка выполнена
+          </label>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>Упражнение</th><th>Подходы × повторения</th><th>Отдых</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Упражнение">Приседания со штангой</td><td data-label="Подходы">4 × 6–8</td><td data-label="Отдых">2–3 мин</td></tr>
+            <tr><td data-label="Упражнение">Румынская тяга</td><td data-label="Подходы">3 × 10</td><td data-label="Отдых">90 сек</td></tr>
+            <tr><td data-label="Упражнение">Жим ногами</td><td data-label="Подходы">3 × 12</td><td data-label="Отдых">90 сек</td></tr>
+            <tr><td data-label="Упражнение">Выпады с гантелями</td><td data-label="Подходы">3 × 10 на ногу</td><td data-label="Отдых">60 сек</td></tr>
+            <tr><td data-label="Упражнение">Подъём на носки стоя</td><td data-label="Подходы">4 × 15</td><td data-label="Отдых">45 сек</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="day-panel" data-day="C">
+        <div class="day-header">
+          <div>
+            <h3>День C — Грудь / Толчок</h3>
+            <div class="day-sub">Грудь, плечи, трицепс</div>
+          </div>
+          <label class="done-toggle" id="toggle-C">
+            <input type="checkbox" id="check-C"> Тренировка выполнена
+          </label>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>Упражнение</th><th>Подходы × повторения</th><th>Отдых</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Упражнение">Жим штанги лёжа</td><td data-label="Подходы">4 × 6–8</td><td data-label="Отдых">2–3 мин</td></tr>
+            <tr><td data-label="Упражнение">Жим гантелей на наклонной</td><td data-label="Подходы">3 × 10</td><td data-label="Отдых">90 сек</td></tr>
+            <tr><td data-label="Упражнение">Отжимания на брусьях</td><td data-label="Подходы">3 × 10–12</td><td data-label="Отдых">90 сек</td></tr>
+            <tr><td data-label="Упражнение">Жим гантелей сидя (плечи)</td><td data-label="Подходы">3 × 10</td><td data-label="Отдых">60 сек</td></tr>
+            <tr><td data-label="Упражнение">Разгибание рук на блоке</td><td data-label="Подходы">3 × 12–15</td><td data-label="Отдых">45 сек</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Упражнения по группам -->
+    <div class="tab-panel" data-tab="exercises">
+      <h2 class="section-title">Библиотека упражнений</h2>
+      <div class="muscle-tabs">
+        <button class="muscle-tab active" data-muscle="back">Спина</button>
+        <button class="muscle-tab" data-muscle="legs">Ноги</button>
+        <button class="muscle-tab" data-muscle="chest">Грудь</button>
+      </div>
+
+      <div class="muscle-panel active" data-muscle="back">
+        <div class="exercise">
+          <h4>Становая тяга</h4>
+          <span class="scheme">4 × 6</span>
+          <div class="row"><span class="tag">Техника</span><p>Штанга близко к голеням, спина прямая, тянешь ногами и бёдрами, не спиной.</p></div>
+          <div class="row"><span class="tag">Ошибка</span><p>Округление поясницы в нижней точке — снижай вес, пока техника не станет чистой.</p></div>
+        </div>
+        <div class="exercise">
+          <h4>Подтягивания / тяга верхнего блока</h4>
+          <span class="scheme">4 × 8–10</span>
+          <div class="row"><span class="tag">Техника</span><p>Своди лопатки перед тем, как тянуть руками, локти идут вниз и назад.</p></div>
+          <div class="row"><span class="tag">Ошибка</span><p>Раскачивание корпуса и работа только руками без включения спины.</p></div>
+        </div>
+        <div class="exercise">
+          <h4>Тяга штанги в наклоне</h4>
+          <span class="scheme">3 × 10</span>
+          <div class="row"><span class="tag">Техника</span><p>Корпус фиксирован под 45°, тяга к низу живота, лопатки сведены в верхней точке.</p></div>
+          <div class="row"><span class="tag">Ошибка</span><p>Рывок весом за счёт разгибания спины вместо работы широчайших.</p></div>
+        </div>
+      </div>
+
+      <div class="muscle-panel" data-muscle="legs">
+        <div class="exercise">
+          <h4>Приседания со штангой</h4>
+          <span class="scheme">4 × 6–8</span>
+          <div class="row"><span class="tag">Техника</span><p>Колени идут по направлению стоп, таз назад и вниз, спина нейтральная.</p></div>
+          <div class="row"><span class="tag">Ошибка</span><p>Колени заваливаются внутрь на подъёме — контролируй траекторию.</p></div>
+        </div>
+        <div class="exercise">
+          <h4>Румынская тяга</h4>
+          <span class="scheme">3 × 10</span>
+          <div class="row"><span class="tag">Техника</span><p>Гриф скользит вдоль ног, таз уходит назад, колени слегка согнуты весь подход.</p></div>
+          <div class="row"><span class="tag">Ошибка</span><p>Сгибание в пояснице вместо движения в тазобедренном суставе.</p></div>
+        </div>
+        <div class="exercise">
+          <h4>Жим ногами</h4>
+          <span class="scheme">3 × 12</span>
+          <div class="row"><span class="tag">Техника</span><p>Стопы на ширине плеч, не отрывай поясницу от спинки в нижней точке.</p></div>
+          <div class="row"><span class="tag">Ошибка</span><p>Слишком глубокая амплитуда с отрывом таза — риск для поясницы.</p></div>
+        </div>
+      </div>
+
+      <div class="muscle-panel" data-muscle="chest">
+        <div class="exercise">
+          <h4>Жим штанги лёжа</h4>
+          <span class="scheme">4 × 6–8</span>
+          <div class="row"><span class="tag">Техника</span><p>Лопатки сведены и прижаты к скамье, гриф опускается к нижней части груди.</p></div>
+          <div class="row"><span class="tag">Ошибка</span><p>Отбив грифа от груди — теряет напряжение и повышает риск травмы.</p></div>
+        </div>
+        <div class="exercise">
+          <h4>Жим гантелей на наклонной</h4>
+          <span class="scheme">3 × 10</span>
+          <div class="row"><span class="tag">Техника</span><p>Наклон скамьи 30–45°, гантели идут по дуге к верху груди.</p></div>
+          <div class="row"><span class="tag">Ошибка</span><p>Слишком большой наклон — смещает нагрузку на плечи вместо груди.</p></div>
+        </div>
+        <div class="exercise">
+          <h4>Отжимания на брусьях</h4>
+          <span class="scheme">3 × 10–12</span>
+          <div class="row"><span class="tag">Техника</span><p>Лёгкий наклон корпуса вперёд для акцента на грудь, локти под небольшим углом.</p></div>
+          <div class="row"><span class="tag">Ошибка</span><p>Слишком глубокая амплитуда с проваливанием плеч вперёд.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Питание и отдых -->
+    <div class="tab-panel" data-tab="nutrition">
+      <h2 class="section-title">Питание и отдых</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>Белок</h3>
+          <p><strong>1.6–2.2 г</strong> на кг веса тела в день, равномерно в 3–4 приёма пищи.</p>
+        </div>
+        <div class="info-card">
+          <h3>Сон</h3>
+          <p><strong>7–9 часов</strong> каждую ночь — особенно важно в блоке «Сила», когда нагрузка на нервную систему выше.</p>
+        </div>
+        <div class="info-card">
+          <h3>Между тренировками</h3>
+          <p>Минимум <strong>48 часов</strong> отдыха между тренировками одной и той же группы мышц.</p>
+        </div>
+        <div class="info-card">
+          <h3>Когда снижать нагрузку</h3>
+          <p>При боли в суставах, постоянной усталости или падении рабочих весов <strong>2 тренировки подряд</strong> — переходи на разгрузочный режим.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= ИТАЛИЯ ======================= -->
+  <section class="mode-panel" data-mode="italy">
+    <div class="hero">
+      <h1>Facoltà</h1>
+      <p>Поступление в магистратуру по направлению «Бизнес и экономика», Италия, англоязычные программы.</p>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Разделы Италии">
+      <button class="tab-btn active" data-tab="roadmap">Дорожная карта</button>
+      <button class="tab-btn" data-tab="universities">Вузы и программы</button>
+      <button class="tab-btn" data-tab="documents">Документы</button>
+      <button class="tab-btn" data-tab="visa">Виза и переезд</button>
+      <button class="tab-btn" data-tab="finance">Финансы и стипендии</button>
+    </div>
+
+    <!-- Дорожная карта -->
+    <div class="tab-panel active" data-tab="roadmap">
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Прогресс дорожной карты</span>
+          <span id="road-progress-text">0 / 8</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="road-progress-fill"></div></div>
+      </div>
+
+      <div id="roadmap-list">
+        <div class="step" data-step="1">
+          <input type="checkbox" id="it-step-1">
+          <div class="content">
+            <div class="meta">Месяцы 1–2</div>
+            <h3>Выбор программы и вузов</h3>
+            <p>Сравнить программы по направлению, требованиям к языку, стоимости и срокам подачи. Составить шорт-лист из 4–6 вузов.</p>
+          </div>
+        </div>
+        <div class="step" data-step="2">
+          <input type="checkbox" id="it-step-2">
+          <div class="content">
+            <div class="meta">Месяцы 1–4</div>
+            <h3>Подготовка английского языка</h3>
+            <p>Сдать IELTS или TOEFL с результатом, соответствующим требованиям выбранных программ (обычно IELTS 6.5–7.0).</p>
+          </div>
+        </div>
+        <div class="step" data-step="3">
+          <input type="checkbox" id="it-step-3">
+          <div class="content">
+            <div class="meta">Месяцы 2–4</div>
+            <h3>Сбор академических документов</h3>
+            <p>Диплом и транскрипт оценок, апостиль, нотариальный перевод на английский или итальянский.</p>
+            <ul>
+              <li>Диплом бакалавра</li>
+              <li>Транскрипт с оценками (academic transcript)</li>
+              <li>Апостиль на дипломе</li>
+              <li>Заверенный перевод документов</li>
+            </ul>
+          </div>
+        </div>
+        <div class="step" data-step="4">
+          <input type="checkbox" id="it-step-4">
+          <div class="content">
+            <div class="meta">Месяцы 3–4</div>
+            <h3>Мотивационное письмо и CV</h3>
+            <p>Подготовить motivation letter, CV в формате Europass и, если требуется, рекомендательные письма от преподавателей/работодателей.</p>
+          </div>
+        </div>
+        <div class="step" data-step="5">
+          <input type="checkbox" id="it-step-5">
+          <div class="content">
+            <div class="meta">Месяцы 4–6</div>
+            <h3>Подача заявок</h3>
+            <p>Подать документы через порталы вузов и/или платформу Universitaly, оплатить вступительные взносы.</p>
+          </div>
+        </div>
+        <div class="step" data-step="6">
+          <input type="checkbox" id="it-step-6">
+          <div class="content">
+            <div class="meta">Месяцы 6–7</div>
+            <h3>Получение предложения и подтверждение места</h3>
+            <p>Дождаться решения приёмной комиссии, подтвердить зачисление и внести депозит при необходимости.</p>
+          </div>
+        </div>
+        <div class="step" data-step="7">
+          <input type="checkbox" id="it-step-7">
+          <div class="content">
+            <div class="meta">Месяцы 7–9</div>
+            <h3>Оформление студенческой визы D</h3>
+            <p>Собрать визовой пакет: письмо о зачислении, финансовые гарантии, медицинская страховка, бронь жилья. Подать в консульство Италии.</p>
+          </div>
+        </div>
+        <div class="step" data-step="8">
+          <input type="checkbox" id="it-step-8">
+          <div class="content">
+            <div class="meta">Месяцы 9–10</div>
+            <h3>Переезд и permesso di soggiorno</h3>
+            <p>Прилёт в Италию, оформление permesso di soggiorno в течение 8 дней, codice fiscale, регистрация по месту жительства.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Вузы и программы -->
+    <div class="tab-panel" data-tab="universities">
+      <h2 class="section-title">Вузы и программы</h2>
+      <div class="uni-grid">
+        <div class="uni-card">
+          <div class="city">Милан</div>
+          <h3>Bocconi University</h3>
+          <p>MSc International Management — одна из сильнейших бизнес-школ Европы, англоязычная программа, высокий конкурс.</p>
+        </div>
+        <div class="uni-card">
+          <div class="city">Болонья</div>
+          <h3>Università di Bologna</h3>
+          <p>MSc Economics and Management — старейший университет Европы, сильная экономическая школа, доступнее по стоимости.</p>
+        </div>
+        <div class="uni-card">
+          <div class="city">Милан</div>
+          <h3>Politecnico di Milano</h3>
+          <p>MSc Management Engineering — на стыке менеджмента и инженерии, востребована при техническом бэкграунде.</p>
+        </div>
+        <div class="uni-card">
+          <div class="city">Рим</div>
+          <h3>LUISS Guido Carli</h3>
+          <p>MSc Management — частный вуз с фокусом на бизнес и международные связи с индустрией.</p>
+        </div>
+        <div class="uni-card">
+          <div class="city">Венеция</div>
+          <h3>Ca' Foscari University</h3>
+          <p>MSc Economics and Finance — сильная финансовая программа, компактный кампус, ниже конкурс, чем в Милане.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Документы -->
+    <div class="tab-panel" data-tab="documents">
+      <h2 class="section-title">Документы по категориям</h2>
+      <div class="doc-grid">
+        <div class="doc-cat">
+          <h3>Академические</h3>
+          <ul>
+            <li>Диплом бакалавра</li>
+            <li>Транскрипт с оценками</li>
+            <li>Апостиль</li>
+            <li>Заверенный перевод</li>
+          </ul>
+        </div>
+        <div class="doc-cat">
+          <h3>Языковые</h3>
+          <ul>
+            <li>Сертификат IELTS / TOEFL</li>
+            <li>Сертификат уровня итальянского (если требуется вузом)</li>
+          </ul>
+        </div>
+        <div class="doc-cat">
+          <h3>Мотивационные</h3>
+          <ul>
+            <li>Мотивационное письмо</li>
+            <li>CV (формат Europass)</li>
+            <li>Рекомендательные письма</li>
+          </ul>
+        </div>
+        <div class="doc-cat">
+          <h3>Личные</h3>
+          <ul>
+            <li>Загранпаспорт (срок действия &gt; 6 мес. после окончания визы)</li>
+            <li>Фото по требованиям консульства</li>
+            <li>Справка об отсутствии судимости</li>
+          </ul>
+        </div>
+        <div class="doc-cat">
+          <h3>Финансовые</h3>
+          <ul>
+            <li>Справка о доходах / выписка с накоплениями</li>
+            <li>Подтверждение оплаты первого взноса за обучение</li>
+            <li>Медицинская страховка</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Виза и переезд -->
+    <div class="tab-panel" data-tab="visa">
+      <h2 class="section-title">Виза и переезд</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>Тип визы</h3>
+          <p>Национальная виза <strong>D (учебная)</strong> — оформляется в консульстве Италии по месту проживания.</p>
+        </div>
+        <div class="info-card">
+          <h3>Пакет на подачу</h3>
+          <p>Письмо о зачислении, финансовые гарантии, медицинская страховка на весь срок визы, подтверждение брони жилья.</p>
+        </div>
+        <div class="info-card">
+          <h3>После прилёта</h3>
+          <p>Оформить <strong>permesso di soggiorno</strong> в течение 8 дней, получить <strong>codice fiscale</strong>, зарегистрироваться в комуне.</p>
+        </div>
+        <div class="info-card">
+          <h3>Жильё</h3>
+          <p>Студенческое общежитие вуза, долгосрочная аренда квартиры/комнаты, либо временное жильё (Airbnb) на первый месяц поиска.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Финансы и стипендии -->
+    <div class="tab-panel" data-tab="finance">
+      <h2 class="section-title">Финансы и стипендии</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>DSU / региональные стипендии</h3>
+          <p>Diritto allo Studio Universitario — стипендия по уровню дохода семьи, покрывает часть проживания и питания, подача через региональный портал.</p>
+        </div>
+        <div class="info-card">
+          <h3>Стипендии вузов</h3>
+          <p>Merit-based стипендии от самих университетов — снижение оплаты обучения по результатам конкурса или вступительных баллов.</p>
+        </div>
+        <div class="info-card">
+          <h3>Стоимость обучения</h3>
+          <p>Для non-EU студентов — от <strong>3 000 до 20 000 €/год</strong> в зависимости от вуза и рейтинга программы.</p>
+        </div>
+        <div class="info-card">
+          <h3>Бюджет на жизнь</h3>
+          <p>В среднем <strong>700–1000 €/месяц</strong> в зависимости от города (Милан дороже, Болонья и Венеция — умеренно).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Форма &amp; Facoltà — личный трекер. Данные сохраняются только в этом браузере.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_PREFIX = "forma-facolta:";
+
+  function readState(key, fallback){
+    try{
+      var v = window.localStorage.getItem(STORAGE_PREFIX + key);
+      return v === null ? fallback : v;
+    }catch(e){ return fallback; }
+  }
+  function writeState(key, value){
+    try{ window.localStorage.setItem(STORAGE_PREFIX + key, value); }catch(e){}
+  }
+
+  /* ---------- Top-level mode switch ---------- */
+  var modeButtons = document.querySelectorAll(".mode-btn");
+  var modePanels = document.querySelectorAll(".mode-panel");
+  modeButtons.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var mode = btn.getAttribute("data-mode");
+      modeButtons.forEach(function(b){
+        b.classList.toggle("active", b === btn);
+        b.setAttribute("aria-selected", b === btn ? "true" : "false");
+      });
+      modePanels.forEach(function(p){
+        p.classList.toggle("active", p.getAttribute("data-mode") === mode);
+      });
+    });
+  });
+
+  /* ---------- Generic tab system (works for .tabs/.tab-panel, .day-tabs/.day-panel, .muscle-tabs/.muscle-panel) ---------- */
+  function wireTabs(navSelector, btnSelector, panelSelector, dataAttr){
+    document.querySelectorAll(navSelector).forEach(function(nav){
+      var scope = nav.parentElement;
+      nav.querySelectorAll(btnSelector).forEach(function(btn){
+        btn.addEventListener("click", function(){
+          var key = btn.getAttribute(dataAttr);
+          nav.querySelectorAll(btnSelector).forEach(function(b){ b.classList.toggle("active", b === btn); });
+          scope.querySelectorAll(":scope > " + panelSelector).forEach(function(p){
+            p.classList.toggle("active", p.getAttribute(dataAttr) === key);
+          });
+        });
+      });
+    });
+  }
+  wireTabs(".tabs", ".tab-btn", ".tab-panel", "data-tab");
+  wireTabs(".day-tabs", ".day-tab", ".day-panel", "data-day");
+  wireTabs(".muscle-tabs", ".muscle-tab", ".muscle-panel", "data-muscle");
+
+  /* ---------- Gym: day checkboxes + week progress ---------- */
+  var days = ["A","B","C"];
+  function updateWeekProgress(){
+    var done = 0;
+    days.forEach(function(d){
+      if(readState("day-" + d + "-done", "false") === "true") done++;
+    });
+    document.getElementById("week-progress-text").textContent = done + " / 3";
+    document.getElementById("week-progress-fill").style.width = (done / 3 * 100) + "%";
+  }
+  days.forEach(function(d){
+    var checkbox = document.getElementById("check-" + d);
+    var toggle = document.getElementById("toggle-" + d);
+    var stored = readState("day-" + d + "-done", "false") === "true";
+    checkbox.checked = stored;
+    toggle.classList.toggle("done", stored);
+    checkbox.addEventListener("change", function(){
+      writeState("day-" + d + "-done", checkbox.checked ? "true" : "false");
+      toggle.classList.toggle("done", checkbox.checked);
+      updateWeekProgress();
+    });
+  });
+  updateWeekProgress();
+
+  /* ---------- Italy: roadmap checkboxes + progress ---------- */
+  function updateRoadProgress(){
+    var done = 0;
+    for(var i=1;i<=8;i++){
+      if(readState("it-step-" + i, "false") === "true") done++;
+    }
+    document.getElementById("road-progress-text").textContent = done + " / 8";
+    document.getElementById("road-progress-fill").style.width = (done / 8 * 100) + "%";
+  }
+  for(var i=1;i<=8;i++){
+    (function(idx){
+      var checkbox = document.getElementById("it-step-" + idx);
+      var stepEl = checkbox.closest(".step");
+      var stored = readState("it-step-" + idx, "false") === "true";
+      checkbox.checked = stored;
+      stepEl.classList.toggle("done", stored);
+      checkbox.addEventListener("change", function(){
+        writeState("it-step-" + idx, checkbox.checked ? "true" : "false");
+        stepEl.classList.toggle("done", checkbox.checked);
+        updateRoadProgress();
+      });
+    })(i);
+  }
+  updateRoadProgress();
+
+})();
+</script>
+</body>
+</html>
